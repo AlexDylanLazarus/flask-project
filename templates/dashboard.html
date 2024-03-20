@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; 
+            margin: 0; 
+            grid-template-columns: repeat(4,1fr) ;
+        }
+        div{
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+        img{
+            width:200px;
+        }
+    </style>
+</head>
+<body>
+    {% for movie in movies %}
+    <div>
+        <img src="{{movie['poster']}}">
+        
+        <p>{{movie['name']}} ⭐{{movie['rating']}}</p>
+        
+        <p>{{movie['summary']}}</p>
+    </div>
+    {% endfor %}
+</body>
+</html>

@@ -72,3 +72,11 @@ to change address
 ```bash
 flask run --host=0.0.0.0
 ```
+
+# REST API/ENDPOINT
+- CRUD 
+
+Traditional way to do things is  to send an html file. 
+
+# Jinja 2 
+- creates html templates for you
