@@ -195,6 +195,16 @@ def get_movie_by_id(id):
         return jsonify({"message": "movie not found"}), 404
 
 
+# so the following means that you visit a specific id, the page loads
+@app.get("/dashboard/<id>")
+def dashboard_get_movie_by_id(id):
+    filtered_movie = next((movie for movie in movies if movie["id"] == id), None)
+    if filtered_movie:
+        return render_template("filtered_movie.html", filtered_movie=filtered_movie)
+    else:
+        return "<h1>Movie not found</h1>"
+
+
 # create a delete api for movies
 @app.delete("/movies/<id>")
 def delete_movie(id):
