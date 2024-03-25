@@ -169,7 +169,7 @@ def get_movies():
 # this is only temporarily stored
 @app.post("/movies")
 def post_movies():
-    new_movie = request.json
+    new_movie = request.json()
     movie_ids = [int(movie["id"]) for movie in movies]
     max_id = max(movie_ids) if movie_ids else 0
     new_movie["id"] = str(max_id + 1)
@@ -212,7 +212,6 @@ def update_movie(id):
     update_movie = request.json
     id_for_updating = next((movie for movie in movies if movie["id"] == id), None)
     if id_for_updating:
-
         # What does update do? Pass a dictionary in it. it is a method for dictionaries.
         # other way y = {**id_for_updating, "name": "blah"}
         id_for_updating.update(update_movie)  # mutable | same memory
