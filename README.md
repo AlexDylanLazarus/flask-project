@@ -80,3 +80,51 @@ Traditional way to do things is  to send an html file.
 
 # Jinja 2 
 - creates html templates for you
+
+# check packages(take snapshot of packages) 
+```bash
+pip freeze > requirements.txt
+```
+
+
+# to install snapshot/ all dependencies
+- whoever wants to clone it they can just use one line:
+```bash
+pip install -r requirements.txt
+```
+
+as you install more packages, you will need to take a snapshot of the packages
+
+#to check currently installed
+```bash
+pip freeze
+```
+
+# ORM (object relational mapping)
+- you dont have to use raw SQL  
+- has their own methods like .all (which is like saying select * in sql)
+- it is easy to work with datatypes
+- autocomplete
+- you can work with multiple databases like sqlserver, mysql, postgres
+- no1 in industry uses raw sql, they use ORMS
+
+## SQL Alchemy
+```
+from sqlalchemy import create_engine
+```
+
+### packages needed
+```bash
+pip install pyodbc
+```
+```bash
+pip install SQLAlchemy
+```
+
+```bash
+pip install flask_sqlalchemy
+```
+
+```bash
+pip install python-dotenv
+```

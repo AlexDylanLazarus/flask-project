@@ -1,6 +1,51 @@
+import os
 from flask import Flask, jsonify, request, render_template
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+connection_string = os.environ.get("AZURE_DATABASE_URL")
+# connection_string = "mssql+pyodbc://<username>:<password>@moviesserversanlam.database.windows.net:1433/moviesdb?driver=ODBC+Driver+17+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no&Connection Timeout=30"
+app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
+db = SQLAlchemy(app)
+
+# Driver={ODBC Driver 18 for SQL Server};Server=tcp:
+# Driver={ODBC Driver 18 for SQL Server};Server=tcp:alexserver1.database.windows.net,1433;Database=moviesdb;Uid=alexlazarus;Pwd={your_password_here};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;
+
+try:
+    with app.app_context():
+        # Use text() to explicitly declare your SQL command
+        result = db.session.execute(text("SELECT 1")).fetchall()
+        print("Connection successful:", result)
+except Exception as e:
+    print("Error connecting to the database:", e)
+
+# Model(SQLAlchemy) == Schema
+
+
+class Movie(db.Model):
+    __tablename__ = "movies"
+    id = db.Column(db.String(50), primary_key=True)
+    name = db.Column(db.String(100))
+    poster = db.Column(db.String(255))
+    rating = db.Column(db.Float)
+    summary = db.Column(db.String(500))
+    trailer = db.Column(db.String(255))
+
+    # JSON
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "poster": self.poster,
+            "rating": self.rating,
+            "summary": self.summary,
+            "trailer": self.summary,
+        }
+
 
 # local
 movies = [
@@ -155,7 +200,9 @@ if __name__ == "__main__":
 
 @app.get("/movies")
 def get_movies():
-    return jsonify(movies)
+    movie_list = Movie.query.all()  # Select * from movies
+    data = [movie.to_dict() for movie in movie_list]  # list of dictionaries
+    return render_template("dashboard.html", movies=data)
 
 
 # @app.post("/movies")
@@ -180,17 +227,10 @@ def post_movies():
 
 @app.get("/movies/<id>")
 def get_movie_by_id(id):
-    # Code here to match the movie with id
-    # Generator expression to get the first match
-    # Generators dont create a new memory location, operates on same memory
-    # it automatically converts to iter
-
-    # find an item list | next(expression,default value)
-    # Advantage: Loop will stop as soon as match is found
-
-    filtered_movie = next((movie for movie in movies if movie["id"] == id), None)
-    if filtered_movie:
-        return jsonify(filtered_movie)
+    movie = Movie.query.get(id)
+    if movie:
+        data = movie.to_dict()
+        return render_template("filtered_movie.html", filtered_movie=data)
     else:
         return jsonify({"message": "movie not found"}), 404
 
@@ -203,6 +243,47 @@ def dashboard_get_movie_by_id(id):
         return render_template("filtered_movie.html", filtered_movie=filtered_movie)
     else:
         return "<h1>Movie not found</h1>"
+
+
+@app.route("/login", methods=["GET"])
+def login_page():
+    return render_template("forms.html")
+
+
+@app.route("/dashboard1", methods=["POST"])
+def dashboard_page():
+    username = request.form.get(
+        "username"
+    )  # if the method is get then you use args instead of form
+    password = request.form.get("password")
+    print(username, password)
+    return f"<h1> hi {username}</h1>"
+
+
+@app.route("/movies/add", methods=["GET"])
+def add_movie():
+    return render_template("add_movie.html")
+
+
+@app.route("/dashboard", methods=["POST"])
+def post_movie():
+    name = request.form.get("name")
+    poster = request.form.get("poster")
+    rating = request.form.get("rating")
+    summary = request.form.get("summary")
+    trailer = request.form.get("trailer")
+    movie_ids = [int(movie["id"]) for movie in movies]
+    max_id = max(movie_ids) if movie_ids else 0
+    new_movie = {
+        "id": str(max_id + 1),
+        "name": name,
+        "poster": poster,
+        "rating": rating,
+        "summary": summary,
+        "trailer": trailer,
+    }
+    movies.append(new_movie)
+    return render_template("dashboard.html", movies=movies)
 
 
 # create a delete api for movies

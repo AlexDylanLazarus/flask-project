@@ -33,6 +33,10 @@
             justify-content: space-around;
             flex-wrap: wrap;
         }
+        .movie-actions{
+            display:flex;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
@@ -47,6 +51,10 @@
             <p>⭐{{movie['rating']}}</p>
         </div>
         <p>{{movie['summary']}}</p>
+        <div class="movie-actions">
+        <a href="/dashboard/{{movie.id}}"> View More ...</a>
+        <a href="/dashboard/{{movie.id}}"> Delete</a>
+    </div>
     </div>
     {% endfor %}
 </div>

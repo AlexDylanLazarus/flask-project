@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .login-form{
+            display:grid;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- form only supports get and post but not put and delete -->
+    <!-- for login, use post coz it is more secure -->
+    <!-- with get, it goes in the url but post goes in the body -->
+    <form class="login-form" action="{{url_for('post_movie')}}" method="post" >
+            <input name="name" type="text" placeholder="name">
+            <input name="poster" type="text" placeholder="poster">
+            <input name="rating" type="number" placeholder="rating">
+            <input name="summary" type="text" placeholder="summary">
+            <input name="trailer" type="text" placeholder="trailer">
+            <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
