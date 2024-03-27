@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Movie</title>
+    <style>
+        .edit-form{
+            display: grid;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <form class="edit-form" action="{{ url_for('update_movie_by_id')}}" method="post">
+        <input name="movie_id" type="text" value="{{movie.id}}" hidden>
+        <input name="name" type="text" placeholder="Name">
+        <input name="poster" type="text" placeholder="Poster">
+        <input name="rating" type="number" step="0.1" placeholder="Rating">
+        <input name="summary" type="text" placeholder="Summary">
+        <input name="trailer" type="text" placeholder="Trailer">
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

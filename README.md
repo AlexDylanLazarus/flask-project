@@ -104,7 +104,7 @@ pip freeze
 - you dont have to use raw SQL  
 - has their own methods like .all (which is like saying select * in sql)
 - it is easy to work with datatypes
-- autocomplete
+- autocomplete: 
 - you can work with multiple databases like sqlserver, mysql, postgres
 - no1 in industry uses raw sql, they use ORMS
 
@@ -128,3 +128,6 @@ pip install flask_sqlalchemy
 ```bash
 pip install python-dotenv
 ```
+
+# blue print 
+- to break the long file down

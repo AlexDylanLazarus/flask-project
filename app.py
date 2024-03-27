@@ -2,9 +2,12 @@ import os
 from flask import Flask, jsonify, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
-from dotenv import load_dotenv
+from dotenv import (
+    load_dotenv,
+)  # to hide connection string, security, flexibility(easy to config changes wihtout code edits. You just modify the url), conevnience
+import uuid
 
-load_dotenv()
+load_dotenv()  # loads to os environment variables.
 
 app = Flask(__name__)
 connection_string = os.environ.get("AZURE_DATABASE_URL")
@@ -28,7 +31,9 @@ except Exception as e:
 
 class Movie(db.Model):
     __tablename__ = "movies"
-    id = db.Column(db.String(50), primary_key=True)
+    id = db.Column(
+        db.String(50), primary_key=True, default=lambda: str(uuid.uuid4())
+    )  # you dont wanna auto increment in the python world. If you want to merge tables together this make sure that the primary keys are unique. Security as well.
     name = db.Column(db.String(100))
     poster = db.Column(db.String(255))
     rating = db.Column(db.Float)
@@ -38,7 +43,7 @@ class Movie(db.Model):
     # JSON
     def to_dict(self):
         return {
-            "id": self.id,
+            "id": self.id,  # this is for the front end people. They can have any key so it can support older and newer versions of the app.  So if you want to maintain a project then you dont have to change the column name in the database
             "name": self.name,
             "poster": self.poster,
             "rating": self.rating,
@@ -216,13 +221,23 @@ def get_movies():
 # this is only temporarily stored
 @app.post("/movies")
 def post_movies():
-    new_movie = request.json()
-    movie_ids = [int(movie["id"]) for movie in movies]
-    max_id = max(movie_ids) if movie_ids else 0
-    new_movie["id"] = str(max_id + 1)
-    movies.append(new_movie)
-    result = {"message": "Added Successfully"}
-    return jsonify(result), 201
+    data = request.json()  # body
+    # new_movie = Movie(      #if you wanna do unpacking method then it needs to be the same name
+    #     name=data["name"],
+    #     poster=data["poster"],
+    #     rating=data["rating"],
+    #     summary=data["summary"],
+    #     trailer=data["trailer"],
+    # )
+    new_movie = Movie(**data)
+    try:
+        db.session.add(new_movie)
+        db.session.commit()
+        result = {"message": "Added Successfully", "data": new_movie.to_dict()}
+        return jsonify(result), 201
+    except Exception as e:
+        db.session.rollback()  # undo the change
+        return jsonify({"message": str(e)}), 500
 
 
 @app.get("/movies/<id>")
@@ -250,6 +265,40 @@ def login_page():
     return render_template("forms.html")
 
 
+@app.route("/edit")
+def edit_form():
+    return render_template("edit_form.html")
+
+
+@app.route("/edit/<id>", methods=["POST"])
+def update_movie_by_id(id):
+    id = request.form.get("movie_id")
+    movie = Movie.query.get(id)
+    if not movie:
+        return "<h1>Movie not found</h1>", 404
+    name = request.form.get("name")
+    poster = request.form.get("poster")
+    rating = request.form.get("rating")
+    summary = request.form.get("summary")
+    trailer = request.form.get("trailer")
+    body = {
+        "name": name,
+        "poster": poster,
+        "rating": rating,
+        "summary": summary,
+        "trailer": trailer,
+    }
+    try:
+        for key, value in body.items():
+            if hasattr(movie, key):
+                setattr(movie, key, value)
+        db.session.commit()
+        return "<h1>UPDATED MOVIE SUCCESSFULLY</h1>"
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": str(e)}), 500
+
+
 @app.route("/dashboard1", methods=["POST"])
 def dashboard_page():
     username = request.form.get(
@@ -260,57 +309,92 @@ def dashboard_page():
     return f"<h1> hi {username}</h1>"
 
 
+@app.route("/movies/delete", methods=["POST"])
+def delete_movie_by_id():
+    print(request.form.get("movie_id"))
+    id = request.form.get("movie_id")
+    filtered_movie = Movie.query.get(id)
+    if not filtered_movie:
+        return "<h1>Movie not found</h1>", 404
+    try:
+        data = filtered_movie.to_dict()
+        db.session.delete(filtered_movie)
+        db.session.commit()  # Making the change (update/delete/create) permanent
+        return f"<h1>{data['name']} Movie deleted Successfully</h1>"
+    except Exception as e:
+        db.session.rollback()  # Undo the change
+        return f"<h1>Error happened {str(e)}</h1>", 500
+
+
 @app.route("/movies/add", methods=["GET"])
 def add_movie():
     return render_template("add_movie.html")
 
 
-@app.route("/dashboard", methods=["POST"])
+@app.route("/movies/add/added", methods=["POST"])
 def post_movie():
     name = request.form.get("name")
     poster = request.form.get("poster")
     rating = request.form.get("rating")
     summary = request.form.get("summary")
     trailer = request.form.get("trailer")
-    movie_ids = [int(movie["id"]) for movie in movies]
-    max_id = max(movie_ids) if movie_ids else 0
-    new_movie = {
-        "id": str(max_id + 1),
-        "name": name,
-        "poster": poster,
-        "rating": rating,
-        "summary": summary,
-        "trailer": trailer,
-    }
-    movies.append(new_movie)
-    return render_template("dashboard.html", movies=movies)
+    new_movie = (
+        Movie(  # if you wanna do unpacking method then it needs to be the same name
+            name=name, poster=poster, rating=rating, summary=summary, trailer=trailer
+        )
+    )
+    try:
+        db.session.add(new_movie)
+        db.session.commit()
+        data = new_movie.to_dict()
+        return f"<h1>{data['name']} added successfully"
+    except Exception as e:
+        db.session.rollback()  # undo the change
+        return jsonify({"message": str(e)}), 500
 
 
 # create a delete api for movies
+# db.session.delete(movie)
 @app.delete("/movies/<id>")
 def delete_movie(id):
-    id_for_deletion = next((movie for movie in movies if movie["id"] == id), None)
-    if id_for_deletion:
-        print(movies.remove(id_for_deletion))
-        return jsonify({"message": "deleted successfully", "data": id_for_deletion})
-    else:
-        return jsonify({"message": "movie not found"}), 404
+    movie = Movie.query.get(id)
+    if not movie:
+        return jsonify({"message": "Movie not found"}), 404
+    try:
+        data = movie.to_dict()
+        db.session.delete(data)
+        db.session.commit()  # this makes the change permanant
+        return render_template("filtered_movie.html", data=data)
+    except Exception as e:
+        db.session.rollback()  # undo the change
+        return jsonify({"message": str(e)}), 500
 
 
 # update movie
-@app.put("/movies/<id>")
+# Task convert to db call
 def update_movie(id):
-    update_movie = request.json
-    id_for_updating = next((movie for movie in movies if movie["id"] == id), None)
-    if id_for_updating:
-        # What does update do? Pass a dictionary in it. it is a method for dictionaries.
-        # other way y = {**id_for_updating, "name": "blah"}
-        id_for_updating.update(update_movie)  # mutable | same memory
+    movie = Movie.query.get(id)
+    if not movie:
+        return jsonify({"message": "Movie not found"}), 404
+    body = request.json
+    try:
+        # movie.name = body.get("name", movie.name) #use .get for the dictionary
+        # movie.poster = body.get("name", movie.poster)
+        # movie.rating = body.get("rating", movie.rating)
+        # movie.summary = body.get("summary", movie.summary)
+        # movie.trailer = body.get("trailer", movie.summary)
+        for key, value in body.items():
+            if hasattr(
+                movie, key
+            ):  # checking if it has the column in table.  if you receive a json then it wont only match the keys. We also dont want to add columns that dont exist
+                setattr(movie, key, value)
+        db.session.commit()
         return jsonify(
-            {"message": "movie updated successfully", "data": id_for_updating}
+            {"message": "Movie updated successfully!", "data": movie.to_dict()}
         )
-    else:
-        return jsonify({"message": "movie not found"}), 404
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": str(e)}), 500
 
 
 # @app.put("/movies/<id>")
