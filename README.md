@@ -131,3 +131,32 @@ pip install python-dotenv
 
 # blue print 
 - to break the long file down
+
+## advantages include:
+- modularity
+- scalability
+- reusablity
+
+
+# base html/ template inheritence
+- 
+
+# Validations
+- need criteria for certain form to be valid
+- we want clean data in the database (dont want to store junk data)
+- improving user experience (allowing them to correct themselves)
+- business rules
+- security
+- error prevention
+- data integrity
+
+
+## Can use flask WTF
+- can use CSRF token. it is like a stamp that makes it legit. 
+- on every form we can have this stamp/seal
+- so for example if you have a payment form, where you have to send the name etc. In our bank webpage we will have an extra seal. The hackers wont have the seal so if hackers try to connect to the db they can't. We are safeguarding our users.
+
+
+```bash 
+pip install Flask-WTF
+```
