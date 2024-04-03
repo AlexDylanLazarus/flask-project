@@ -244,4 +244,13 @@ DW -> Pow BI and ML tools
 - The devops team decide what data they want in the warehouse
 
 
+# Why did we organize everything
+- developer experience
+- we now know both ways
+
+# add another page - Process and scalable 
+1. Model
+2. route
+3. app.py (registering)
+4. template
 

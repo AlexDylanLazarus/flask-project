@@ -6,7 +6,7 @@ from dotenv import (
     load_dotenv,
 )  # to hide connection string, security, flexibility(easy to config changes wihtout code edits. You just modify the url), conevnience
 import uuid
-from about_bp import about_bp
+from routes.about_bp import about_bp
 from extensions import db
 
 
@@ -39,10 +39,10 @@ except Exception as e:
     print("Error connecting to the database:", e)
 
 
-from movies_bp import movies_bp
-from movies_list_bp import movies_list_bp
-from users_bp import users_bp
-from main_bp import main_bp
+from routes.movies_bp import movies_bp
+from routes.movies_list_bp import movies_list_bp
+from routes.users_bp import users_bp
+from routes.main_bp import main_bp
 
 app.register_blueprint(about_bp, url_prefix="/about")
 app.register_blueprint(movies_bp, url_prefix="/movies")
