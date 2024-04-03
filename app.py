@@ -26,13 +26,6 @@ db = SQLAlchemy(app)
 # Driver={ODBC Driver 18 for SQL Server};Server=tcp:
 # Driver={ODBC Driver 18 for SQL Server};Server=tcp:alexserver1.database.windows.net,1433;Database=moviesdb;Uid=alexlazarus;Pwd={your_password_here};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;
 
-try:
-    with app.app_context():
-        # Use text() to explicitly declare your SQL command
-        result = db.session.execute(text("SELECT 1")).fetchall()
-        print("Connection successful:", result)
-except Exception as e:
-    print("Error connecting to the database:", e)
 
 # Model(SQLAlchemy) == Schema
 
@@ -65,7 +58,7 @@ class User(db.Model):
     id = db.Column(
         db.String(50), primary_key=True, default=lambda: str(uuid.uuid4())
     )  # you dont wanna auto increment in the python world. If you want to merge tables together this make sure that the primary keys are unique. Security as well.
-    username = db.Column(db.String(50))
+    username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(50))
 
     # JSON
@@ -77,47 +70,7 @@ class User(db.Model):
         }
 
 
-@app.route(
-    "/"
-)  # / is the home page. remember the shortcut we learned in html with / in the anchor tag href.
-def hello_world():
-    return render_template("base.html")
-
-
-from movies_bp import movies_bp
-from movies_list_bp import movies_list_bp
-from users import users_bp
-
-app.register_blueprint(about_bp, url_prefix="/about")
-app.register_blueprint(movies_bp, url_prefix="/movies")
-app.register_blueprint(movies_list_bp, url_prefix="/movie-list")
-app.register_blueprint(users_bp, url_prefix="/users")
-
-hobbies = ["gaming", "reading", "soccer", "ballet", "gyming", "yoga"]
-name = "Caleb"
-
-
-@app.route("/profile")
-def profile_page():
-    return render_template("profile.html", name=name, hobbies=hobbies)
-
-
-@app.route("/sample")
-def sample_page():
-    return render_template("sample.html")
-
-
-@app.route("/dashboard1", methods=["POST"])
-def dashboard_page():
-    username = request.form.get(
-        "username"
-    )  # if the method is get then you use args instead of form
-    password = request.form.get("password")
-    print(username, password)
-    return f"<h1> hi {username}</h1>"
-
-
-from wtforms.validators import InputRequired, Length
+from wtforms.validators import InputRequired, Length, ValidationError
 from wtforms import StringField, PasswordField, SubmitField
 
 
@@ -128,34 +81,68 @@ class RegistrationForm(FlaskForm):
     )
     submit = SubmitField("Sign Up")
 
-
-@app.route("/register1", methods=["GET", "POST"])
-def register_page1():
-    form = RegistrationForm()
-
-    # only on POST
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data  # get data from form
-        existing_user = User.query.filter_by(username=username).first()
+    # _<columnname>
+    # validate is automatically called when form.validate_on_submit()
+    def validate_username(self, field):
+        # inform WTF that there is an error
+        print("validate username ⭐⭐⭐⭐", field.data)
+        existing_user = User.query.filter_by(username=field.data).first()
         if existing_user:
-            return "Username already exists", 400  # Bad Request
-
-        new_user = User(username=username, password=password)
-
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-            return "Registration successful"
-        except Exception as e:
-            db.session.rollback()
-            return f"Error occurred: {str(e)}", 500
-
-    return render_template("register1.html", form=form)
+            raise ValidationError("Username is taken")
 
 
 # GET ISSUE TOKEN
 # POST VERIFY TOKEN
+
+
+class LoginForm(FlaskForm):
+    username = StringField("Username", validators=[InputRequired(), Length(min=6)])
+    password = PasswordField(
+        "Password", validators=[InputRequired(), Length(min=8, max=12)]
+    )
+    submit = SubmitField("Login")
+
+    # _<columnname>
+    # validate is automatically called when form.validate_on_submit()
+    def validate_username(self, field):
+        # inform WTF that there is an error
+        print("validate username ⭐⭐⭐⭐", field.data)
+        existing_user = User.query.filter_by(username=field.data).first()
+        if not existing_user:
+            raise ValidationError("Invalid creditenials")
+
+    def validate_password(self, field):
+        # inform WTF that there is an error
+        print("validate username ⭐⭐⭐⭐", field.data)
+        existing_user = User.query.filter_by(username=self.username.data).first()
+        if existing_user:
+            user_data_db = existing_user.to_dict()
+            form_password = field.data
+            if user_data_db["password"] != form_password:
+                raise ValidationError("Invalid creditenials")
+
+
+try:
+    with app.app_context():
+        # Use text() to explicitly declare your SQL command
+        result = db.session.execute(text("SELECT 1")).fetchall()
+        print("Connection successful:", result)
+        # db.create_all() #sync tables to db
+except Exception as e:
+    print("Error connecting to the database:", e)
+
+
+from movies_bp import movies_bp
+from movies_list_bp import movies_list_bp
+from users_bp import users_bp
+from main_bp import main_bp
+
+app.register_blueprint(about_bp, url_prefix="/about")
+app.register_blueprint(movies_bp, url_prefix="/movies")
+app.register_blueprint(movies_list_bp, url_prefix="/movie-list")
+app.register_blueprint(users_bp, url_prefix="/users")
+app.register_blueprint(main_bp)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

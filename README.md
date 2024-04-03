@@ -101,10 +101,11 @@ pip freeze
 ```
 
 # ORM (object relational mapping)
+- it is an abstraction upon your sql queries. 
 - you dont have to use raw SQL  
 - has their own methods like .all (which is like saying select * in sql)
-- it is easy to work with datatypes
-- autocomplete: 
+- it is easy to work with datatypes (to dict)
+- autocomplete filterby, query
 - you can work with multiple databases like sqlserver, mysql, postgres
 - no1 in industry uses raw sql, they use ORMS
 
@@ -114,9 +115,12 @@ from sqlalchemy import create_engine
 ```
 
 ### packages needed
+the following is a driver
 ```bash
-pip install pyodbc
+pip install pyodbc 
 ```
+
+the following is an orm. converts to raw sql query then pyodbc returns to sql 
 ```bash
 pip install SQLAlchemy
 ```
@@ -160,3 +164,84 @@ pip install python-dotenv
 ```bash 
 pip install Flask-WTF
 ```
+
+
+1. submit
+2. validate
+3. add
+4. display
+
+
+# authorization and authentication
+## authorization
+- what you can do (access level)
+
+## authentiation
+- who you are
+
+
+# business -> data driven
+- IoT edge systems/devices that does edge computing. doesnt go to api. 
+- use machine learning that then corrects the model 
+- products create data
+- customer related softwares - CRM (customer relations management)
+- CRM tracks flagship customers which are more valuable and -
+- lower end members which theyll target with premium/flagship package. Using netflix as an example
+- also get data from ERP which is then stored in data lake
+- raw data is in data lake. it can be structured and unstructured and semi structured. Its like you just dumping the data from all the softwares 
+- you will then take the data and store it on a shelf or freezer because you need to store it for a long time
+- you have to organize the data to prepare it for "cooking"
+- it is then stored in the data warehouse where you keep organized data.
+- once it is organized, people can then visualize the data.
+- People will then see commonalities of the data between softwares that grabbed the data.
+- use power BI to visualize the data from data warehouse. 
+- you can also use machine learning tools for prediction. you can use tools like pandas and numpy (skykit uses pandas and numpy)
+- it then can go to data mart. the data mart may only have 2 tables. It is a specific slice of your data warehouse. 
+- you can create another app for the data mart. For example a monitoring tool to see if your business is successful. then once again that app will create data and the cycle continues where it goes to the data lake and date warehouse. 
+
+apps create data, data lakes are used to combine , data warehouse s kept organizaed, use tools to visualize or you can take slice of data warehouse (Data Mart) cycle continues
+
+- every app keeps on logging. 
+
+## structured data
+- csv files (comma seperrated data)
+- excel files
+
+
+## what is unstructured data
+- not in tables
+- json files
+- images
+
+
+injestion - data lake consuming data
+
+when you give the data in the data lake logic, it becomes organized. 
+
+creation -> DL -> DW -> DM -> APP
+DW -> Pow BI and ML tools
+
+- you can dump anything in the data lake but dont. have some organization to it else it will become a data swamp. Always keep it clean or some logic in what you can dump. 
+
+
+# SAP
+- its like an hr portal
+- can deal with sales
+- every company needs this
+
+
+# Governance
+- who can see what data
+- who can create data
+- which app can use/see what data
+- it is about access
+1. People
+2. App
+- DevOps is responsible for this 
+
+- Datalake is cheaper than Datawarehouse coz its just storage. But datawarehouse has a database around it.
+- Datawarehouse is running all the time - Available - which costs money. Advantage is you can pull it in Power BI or ML tool for further analysis. You can create an app for further analysis. That app will again dump data in the data lake.
+- The devops team decide what data they want in the warehouse
+
+
+
