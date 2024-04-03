@@ -254,3 +254,17 @@ DW -> Pow BI and ML tools
 3. app.py (registering)
 4. template
 
+# Authentication flow
+- browser (react or python templapte) is going to ask backend (node or python itself) for login. With the login API we are gnna send username and password with POST and the backend will verify if it exists or not. If not, it will give an error and you wil remain on the login page. If username and password is valid, you give them a token. The token is important because it validates/authenticates you. The browser stores token because backend will keep asking for token. It is stored in local storage or cookies. 
+
+```bash
+pip install flask-login
+```
+
+
+# hashing and encryption
+- learn the difference and why we are doing hashing
+
+
+
+

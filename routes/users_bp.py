@@ -1,10 +1,12 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from extensions import db
 from models.user import User
 from wtforms.validators import InputRequired, Length, ValidationError
 from wtforms import StringField, PasswordField, SubmitField
 from flask_wtf import FlaskForm
+from flask_login import login_user
+from models.movie import Movie
 
 users_bp = Blueprint("users_bp", __name__)
 
@@ -86,16 +88,17 @@ def login_page1():
 
     # only on POST
     if form.validate_on_submit():
+
         username = form.username.data
         password = form.password.data  # get data from form
         # the first username is the column and the second username is the form data in the following line
-
-        new_user = User(username=username, password=password)
-
+        user = User.query.filter_by(username=username).first()
+        login_user(user)  # token - cookies
         try:
-            db.session.add(new_user)
+            db.session.add(user)
             db.session.commit()
-            return "<h1>Login successful</h1>"
+            flash("You were successfully logged in")
+            return "<h1>Login was successful</h1>"
         except Exception as e:
             db.session.rollback()
             return f"<h1>Error occurred: {str(e)}</h1>", 500

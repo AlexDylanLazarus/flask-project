@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from models.movie import Movie
 from extensions import db
+from flask_login import login_required
 
 
 movies_list_bp = Blueprint("movies_list_bp", __name__)
@@ -10,9 +11,11 @@ movies_list_bp = Blueprint("movies_list_bp", __name__)
 # Task 2: /movies-list -> Display the data on the page from Azure (MSSQL)
 # Movie list dashboard
 @movies_list_bp.route("/")  # HOF
+@login_required
 def movie_list_page():
     movie_list = Movie.query.all()  # Select * from movies | movie_list iterator
     data = [movie.to_dict() for movie in movie_list]  # list of dictionaries
+
     return render_template("movie-list.html", movies=data)
 
 

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from dotenv import (
@@ -8,6 +8,8 @@ from dotenv import (
 import uuid
 from routes.about_bp import about_bp
 from extensions import db
+from flask_login import LoginManager, login_required, logout_user
+from models.user import User
 
 
 # from file name import variable name
@@ -22,6 +24,8 @@ connection_string = os.environ.get("AZURE_DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = connection_string
 # db = SQLAlchemy(app)
 db.init_app(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 # Driver={ODBC Driver 18 for SQL Server};Server=tcp:
 # Driver={ODBC Driver 18 for SQL Server};Server=tcp:alexserver1.database.windows.net,1433;Database=moviesdb;Uid=alexlazarus;Pwd={your_password_here};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;
@@ -49,6 +53,24 @@ app.register_blueprint(movies_bp, url_prefix="/movies")
 app.register_blueprint(movies_list_bp, url_prefix="/movie-list")
 app.register_blueprint(users_bp, url_prefix="/users")
 app.register_blueprint(main_bp)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
+
+@app.route("/settings")
+@login_required
+def settings():
+    pass
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect("/login1")
 
 
 if __name__ == "__main__":
