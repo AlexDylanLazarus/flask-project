@@ -142,7 +142,7 @@ db.collection.find({
     ]
   }
 })
-
+db.movies.find({}).count
 ```
 
 ```sql
@@ -198,3 +198,82 @@ algorithm + algorithm options(eg cost) + salt = hashed password
 
 ## check_has () behind the scenes
 password@123 + x5qxqrc1r0PvqWJr -> scypt:password@123x5qxqrc1r0PvqWJr
+
+
+# Back to mongoDB
+## Projections
+<!-- db.movies.find({}).count -->
+
+inclusion projection (only say things u need to be included)
+db.movies.find({},{name:1.rating:1})
+
+exclusion projection 
+db.movies.find({},{summary:0,trailer:0})
+
+db.movies.find({}, {_id:0, name:1 , rating:1}) #_id is the only exception when mixing
+
+db.collection.find({
+  rating: {
+    "$gt": 8.5 //double quotes on left side is optional
+  }
+},{_id:0,name:1,rating:1})
+
+db.collection.find({}).sort({rating:1}) gives ascending sort
+db.collection.find({}).sort({rating:-1}) gives descending sort
+db.movies.find({},{_id:0,name:1,rating:1}).sort({name:1, rating:-1})
+db.movies.find().limit(3)
+db.movies.find({},{_id:0,name:1,rating:1}).limit(3).skip(3)
+
+# Data types in mongo db
+Text - "person 1"
+Boolean - true
+Integer(int 32) - 36
+NumberLong - 10000000000
+Number Decimal - 14.36
+ObjectId - ObjectID("252fd")
+ISODate - ISODATE("2019-05-66)
+Embedded - nested documents
+- array of documents
+
+## Choose wisely
+
+SQL
+Fast - throws the book
+slow search where he kept it
+It is a balanced database so everyone can use it
+faster at insertions
+
+MongoDB
+slow Orders the books (takes time)
+fast pick it from library
+- slower at inserting
+- Can use it for twitter coz reading is faster
+- so use nosql when you have read intensive apps so generally social media apps
+
+- insertion heavy apps - Google docs, Share market (trading. JSE), Weather app, 
+
+Amazon uses multiple databases coz it depends upon the scenario
+
+
+
+## Aggregation 
+```js
+db.orders.insertMany([
+{ _id: 0, productName: "Steel beam", status: "new", quantity: 10 },
+{ _id: 1, productName: "Steel beam", status: "urgent", quantity: 20 },
+{ _id: 2, productName: "Steel beam", status: "urgent", quantity: 30 },
+{ _id: 3, productName: "Iron rod", status: "new", quantity: 15 },
+{ _id: 4, productName: "Iron rod", status: "urgent", quantity: 50 },
+{ _id: 5, productName: "Iron rod", status: "urgent", quantity: 10 }
+])
+```
+
+```sql
+SELECT productName as _id, SUM(quantity) as totalQuanity from orders where status='urgent' group by productName
+```
+
+```js
+db.orders.aggregate([{$match:{status:'urgent'}},{$group:{_id:"$productName" , totalUrgentQuantity:{$sum:"$quantity"}}}]) //you say $quantity coz you are referring to the value inside quanitity. if you dont give dollar sign then it just put a string 'quanitity'. $match is like where
+```
+
+
