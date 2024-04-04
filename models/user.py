@@ -9,7 +9,7 @@ class User(UserMixin, db.Model):
         db.String(50), primary_key=True, default=lambda: str(uuid.uuid4())
     )  # you dont wanna auto increment in the python world. If you want to merge tables together this make sure that the primary keys are unique. Security as well.
     username = db.Column(db.String(50), nullable=False, unique=True)
-    password = db.Column(db.String(50))
+    password = db.Column(db.String(255))  # also update in table
 
     # JSON
     def to_dict(self):

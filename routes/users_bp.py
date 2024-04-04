@@ -7,6 +7,7 @@ from wtforms import StringField, PasswordField, SubmitField
 from flask_wtf import FlaskForm
 from flask_login import login_user
 from models.movie import Movie
+from werkzeug.security import generate_password_hash, check_password_hash
 
 users_bp = Blueprint("users_bp", __name__)
 
@@ -55,7 +56,7 @@ class LoginForm(FlaskForm):
         if existing_user:
             user_data_db = existing_user.to_dict()
             form_password = field.data
-            if user_data_db["password"] != form_password:
+            if not check_password_hash(user_data_db["password"], form_password):
                 raise ValidationError("Invalid creditenials")
 
 
@@ -67,12 +68,17 @@ def register_page1():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data  # get data from form
+        password_hash = generate_password_hash(form.password.data)
         # the first username is the column and the second username is the form data in the following line
-
-        new_user = User(username=username, password=password)
+        print(form.password.data, password_hash)
+        new_user = User(
+            username=username, password=password_hash
+        )  # create hashed password on left side
 
         try:
-            db.session.add(new_user)
+            db.session.add(
+                new_user
+            )  # insert into database. This is where we'll do hashing
             db.session.commit()
             return "<h1>Registration successful</h1>"
         except Exception as e:

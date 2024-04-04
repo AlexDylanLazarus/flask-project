@@ -266,5 +266,119 @@ pip install flask-login
 - learn the difference and why we are doing hashing
 
 
+# when you dont know what kind of columns you'll get when you are trying to insert the data
+- 
 
+
+# Using mongoDB
+- How it works
+- Database    IMDB
+- tables = collections
+- rows and columns are called documents in collections
+
+# Advantages of Mongo
+- Joins not required (you dont need to normalize the data)
+- you can nest documents in mongodb (row in a row) 
+- it looks like JSON data
+- You can have array of documents as well
+- we dont need to do joins because of array of document and nested documents
+- you dont need joins because you can store the data as you need it
+- in mongodb you can have different key names (not possible in sql coz u have to predefine columns)
+- you dont have to define the schema
+- you cant have an extra key/column in sql without it applying to all rows(the row can have it as null tho)
+- can have consistant data also
+- different keys, extra keys, normal
+- this is semi structured data
+- it is not storing it as JSON but BSON (binary JSON)
+- JSON takes more space compared to table
+- you are repeating columns/keys in json (JAVASCRIPT OBJECT NOTATION)
+- the syntax takes up space
+- thats why you use BSON (strips off spaces and quotes and just keeps the data). 
+- BSON takes up less space but also has flexibility of JSON
+
+1. no joins required
+2. flexible schema/shape of data/blueprint - array of documents, nested documents (embedded documets)
+3. gonna store as bson so you dont waste space
+
+# CRUD
+Create 
+    -  insertOne(data,options)
+    - insertMany(data,options)
+
+Read 
+    - find(filter,options)
+    - findOne(filter, options)
+    
+Update
+    - updateOne(data,options)
+    - updateMany(data,options)
+    - update one
+
+Delete 
+    - deleteOne(data,options)
+    - deleteMany(data,options)
+
+## Embedded Documents
+- there is a limit of 100 levels of nesting
+- max size of document is 16mb
+
+show dbs
+db (to know which one you are currenlty in)
+use b39we (to switch to a particular tb)
+show collections (will show what collections u have)
+use (whatever db name)
+use alexsanlam
+if you ask show dbs then alexsanlam wont show because theres no data yet
+db.movies.insertMany({})
+db.movies.find()
+
+ObjectID is in BSON
+mongodb automatically creates id for u so dont need uuid
+
+
+connect to vpn
+mcirosoft sql server 2016 express sp1
+say remove
+say next
+select all 
+next
+remove
+install the first one new sql stand alone...
+i accept
+next
+next 
+select all
+next 
+next
+select grant
+next
+next
+
+go onto ssms 
+connect to sql express 
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [MUD\E?????]
+GO
+
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.engine import URL
+ 
+server = 'localhost'
+database = 'YourDatabaseName'
+username = 'YourUsername'
+password = 'YourPassword'
+driver_name = "ODBC Driver 17 for SQL Server"
+connection_string = f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver={driver_name}"
+ 
+app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
+db = SQLAlchemy(app)
+
+mssql+pyodbc://PF3Z9AV0\SQLEXPRESS/moviesdb?driver=ODBC+Driver+17+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no&Connection Timeout=30
+
+to connect to local db - properties for servername and copy the name
+
+# hashing 
+
+```bash
+pip install Werkzeug
+```
 

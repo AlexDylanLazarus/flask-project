@@ -33,15 +33,6 @@ login_manager.init_app(app)
 
 # Model(SQLAlchemy) == Schema
 
-try:
-    with app.app_context():
-        # Use text() to explicitly declare your SQL command
-        result = db.session.execute(text("SELECT 1")).fetchall()
-        print("Connection successful:", result)
-        # db.create_all() #sync tables to db
-except Exception as e:
-    print("Error connecting to the database:", e)
-
 
 from routes.movies_bp import movies_bp
 from routes.movies_list_bp import movies_list_bp
@@ -71,6 +62,18 @@ def settings():
 def logout():
     logout_user()
     return redirect("/login1")
+
+
+try:
+    with app.app_context():
+        # Use text() to explicitly declare your SQL command
+        result = db.session.execute(text("SELECT 1")).fetchall()
+        print("Connection successful:", result)
+        # db.drop_all() #deletes all tables
+        # db.create_all() #sync tables to db
+        # print("creation done")
+except Exception as e:
+    print("Error connecting to the database:", e)
 
 
 if __name__ == "__main__":
