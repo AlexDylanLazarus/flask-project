@@ -382,3 +382,7 @@ to connect to local db - properties for servername and copy the name
 pip install Werkzeug
 ```
 
+create DockerFile
+pip install gunicorn
+pip freeze > requirements.txt
+
